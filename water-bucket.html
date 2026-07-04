@@ -222,9 +222,10 @@
                 <div class="value-display"><span id="capacity-value">200</span> units</div>
             </div>
             <div class="control-group">
-                <label for="max-fill">Max Fill Line</label>
-                <input type="range" id="max-fill" min="0" max="100" value="80">
-                <div class="value-display"><span id="max-fill-value">80</span>%</div>
+                <label for="max-fill">Max Fill Line (units)</label>
+                <!-- Now using units (0..capacity) instead of percentage -->
+                <input type="range" id="max-fill" min="0" max="200" value="160">
+                <div class="value-display"><span id="max-fill-value">160</span> units</div>
             </div>
         </div>
 
@@ -255,7 +256,8 @@
             capacity: 200,
             inflowRate: 30, // units per second (percentage of max)
             holeSize: 20, // percentage
-            maxFillLine: 80, // percentage
+            // maxFillLine is now in whole units (0..capacity)
+            maxFillLine: 160, // units (default 80% of 200)
             timestamp: Date.now()
         };
 
@@ -285,18 +287,27 @@
             state.inflowRate = parseFloat(inflowControl.value);
             state.holeSize = parseFloat(holeSizeControl.value);
             state.capacity = parseFloat(capacityControl.value);
+
+            // Ensure maxFill slider range matches capacity (units)
+            maxFillControl.max = state.capacity;
+
+            // Keep maxFillLine as units and clamp to capacity
             state.maxFillLine = parseFloat(maxFillControl.value);
+            if (state.maxFillLine > state.capacity) {
+                state.maxFillLine = state.capacity;
+                maxFillControl.value = state.maxFillLine;
+            }
 
             document.getElementById('inflow-value').textContent = state.inflowRate;
             document.getElementById('hole-size-value').textContent = state.holeSize;
             document.getElementById('capacity-value').textContent = state.capacity;
-            document.getElementById('max-fill-value').textContent = state.maxFillLine;
+            document.getElementById('max-fill-value').textContent = Math.round(state.maxFillLine);
 
-            // Update max fill line position
+            // Update max fill line position (now using units)
             const bucketTop = 200;
             const bucketBottom = 420;
             const bucketHeight = bucketBottom - bucketTop;
-            const maxFillPosition = bucketBottom - (bucketHeight * state.maxFillLine / 100);
+            const maxFillPosition = bucketBottom - (bucketHeight * state.maxFillLine / state.capacity);
             maxFillLine.setAttribute('y1', maxFillPosition);
             maxFillLine.setAttribute('y2', maxFillPosition);
         }
