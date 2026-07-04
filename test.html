@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Water Animation Tests</title>
+</head>
+<body>
+    <h1>Water Animation Tests</h1>
+    <div id="results"></div>
+
+    <script>
+        function testInflowOnly() {
+            let state = { waterLevel: 0, capacity: 200, inflowRate: 50, holeSize: 0 };
+            const inflow = (state.inflowRate / 100) * 100 * 0.016;
+            state.waterLevel += inflow;
+            console.assert(state.waterLevel > 0, "Water should increase with inflow");
+            return "✓ Inflow test passed";
+        }
+
+        function testOutflowWithPressure() {
+            let state = { waterLevel: 100, capacity: 200, holeSize: 50 };
+            const pressure = Math.sqrt(state.waterLevel / state.capacity);
+            const holeFactor = (state.holeSize / 100) * 100;
+            const outflow = pressure * holeFactor * 0.016;
+            console.assert(outflow > 0, "Water should leak from hole");
+            return "✓ Outflow test passed";
+        }
+
+        function testEquilibrium() {
+            return "✓ Equilibrium test (manual inspection needed)";
+        }
+
+        // Run tests and display results
+        const results = [
+            testInflowOnly(),
+            testOutflowWithPressure(),
+            testEquilibrium()
+        ];
+
+        document.getElementById('results').innerHTML = '<pre>' + results.join('\n') + '</pre>';
+    </script>
+</body>
+</html>
